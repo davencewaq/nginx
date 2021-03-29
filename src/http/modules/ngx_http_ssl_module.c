@@ -301,6 +301,13 @@ static ngx_command_t  ngx_http_ssl_commands[] = {
       offsetof(ngx_http_ssl_srv_conf_t, reject_handshake),
       NULL },
 
+    { ngx_string("ssl_psk_file"),
+      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
+      ngx_conf_set_str_slot,
+      NGX_HTTP_SRV_CONF_OFFSET,
+      offsetof(ngx_http_ssl_srv_conf_t, psk_file),
+      NULL },
+
       ngx_null_command
 };
 
@@ -404,7 +411,17 @@ static ngx_http_variable_t  ngx_http_ssl_vars[] = {
     { ngx_string("ssl_client_v_remain"), NULL, ngx_http_ssl_variable,
       (uintptr_t) ngx_ssl_get_client_v_remain, NGX_HTTP_VAR_CHANGEABLE, 0 },
 
-      ngx_http_null_variable
+    { ngx_string("ssl_psk_identity"), NULL, ngx_http_ssl_variable,
+      (uintptr_t) ngx_ssl_get_psk_identity, NGX_HTTP_VAR_CHANGEABLE, 0 },
+
+    { ngx_string("ssl_psk_identity_hint"),
+      NGX_HTTP_MAIN_CONF|NGX_HTTP_SRV_CONF|NGX_CONF_TAKE1,
+      ngx_conf_set_str_slot,
+      NGX_HTTP_SRV_CONF_OFFSET,
+      offsetof(ngx_http_ssl_srv_conf_t, psk_identity_hint),
+      NULL },
+      
+    ngx_http_null_variable
 };
 
 
@@ -616,7 +633,9 @@ ngx_http_ssl_create_srv_conf(ngx_conf_t *cf)
      *     sscf->ocsp_responder = { 0, NULL };
      *     sscf->stapling_file = { 0, NULL };
      *     sscf->stapling_responder = { 0, NULL };
-     */
+     *     sscf->psk_file = { 0, NULL };
+     *     sscf->psk_identity_hint = { 0, NULL };
+    */
 
     sscf->enable = NGX_CONF_UNSET;
     sscf->prefer_server_ciphers = NGX_CONF_UNSET;
@@ -711,6 +730,9 @@ ngx_http_ssl_merge_srv_conf(ngx_conf_t *cf, void *parent, void *child)
     ngx_conf_merge_str_value(conf->stapling_file, prev->stapling_file, "");
     ngx_conf_merge_str_value(conf->stapling_responder,
                          prev->stapling_responder, "");
+    ngx_conf_merge_str_value(conf->psk_file, prev->psk_file, "");
+    ngx_conf_merge_str_value(conf->psk_identity_hint,
+                         prev->psk_identity_hint, "");
 
     conf->ssl.log = cf->log;
 
@@ -942,6 +964,13 @@ ngx_http_ssl_merge_srv_conf(ngx_conf_t *cf, void *parent, void *child)
     if (ngx_ssl_conf_commands(cf, &conf->ssl, conf->conf_commands) != NGX_OK) {
         return NGX_CONF_ERROR;
     }
+
+    if (ngx_ssl_psk_file(cf, &conf->ssl, &conf->psk_file,
+                         &conf->psk_identity_hint)
+        != NGX_OK)
+    {
+        return NGX_CONF_ERROR;
+    }    
 
     return NGX_CONF_OK;
 }

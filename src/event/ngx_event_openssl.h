@@ -202,6 +202,8 @@ ngx_array_t *ngx_ssl_preserve_passwords(ngx_conf_t *cf,
     ngx_array_t *passwords);
 ngx_int_t ngx_ssl_dhparam(ngx_conf_t *cf, ngx_ssl_t *ssl, ngx_str_t *file);
 ngx_int_t ngx_ssl_ecdh_curve(ngx_conf_t *cf, ngx_ssl_t *ssl, ngx_str_t *name);
+ngx_int_t ngx_ssl_psk_file(ngx_conf_t *cf, ngx_ssl_t *ssl, ngx_str_t *file,
+    ngx_str_t *identity_hint);
 ngx_int_t ngx_ssl_early_data(ngx_conf_t *cf, ngx_ssl_t *ssl,
     ngx_uint_t enable);
 ngx_int_t ngx_ssl_conf_commands(ngx_conf_t *cf, ngx_ssl_t *ssl,
@@ -281,7 +283,8 @@ ngx_int_t ngx_ssl_get_client_v_end(ngx_connection_t *c, ngx_pool_t *pool,
     ngx_str_t *s);
 ngx_int_t ngx_ssl_get_client_v_remain(ngx_connection_t *c, ngx_pool_t *pool,
     ngx_str_t *s);
-
+ngx_int_t ngx_ssl_get_psk_identity(ngx_connection_t *c, ngx_pool_t *pool,
+    ngx_str_t *s);
 
 ngx_int_t ngx_ssl_handshake(ngx_connection_t *c);
 ssize_t ngx_ssl_recv(ngx_connection_t *c, u_char *buf, size_t size);
@@ -300,6 +303,7 @@ extern int  ngx_ssl_connection_index;
 extern int  ngx_ssl_server_conf_index;
 extern int  ngx_ssl_session_cache_index;
 extern int  ngx_ssl_session_ticket_keys_index;
+extern int  ngx_ssl_psk_index;
 extern int  ngx_ssl_ocsp_index;
 extern int  ngx_ssl_certificate_index;
 extern int  ngx_ssl_next_certificate_index;

@@ -1182,6 +1182,55 @@ ngx_hex_dump(u_char *dst, u_char *src, size_t len)
     return dst;
 }
 
+ngx_int_t
+ngx_hex_decode(u_char *dst, u_char *src, size_t len)
+{
+    u_char  ch, decoded;
+
+    if (len & 1) {
+        return NGX_ERROR;
+    }
+
+    while (len) {
+        ch = *src++;
+        len -= 2;
+
+        if (ch >= '0' && ch <= '9') {
+            decoded = ch - '0';
+            goto second;
+        }
+
+        ch |= 0x20;
+
+        if (ch >= 'a' && ch <= 'f') {
+            decoded = ch - 'a' + 10;
+            goto second;
+        }
+
+        return NGX_ERROR;
+
+    second:
+
+        ch = *src++;
+
+        if (ch >= '0' && ch <= '9') {
+            *dst++ = (u_char) ((decoded << 4) + ch - '0');
+            continue;
+        }
+
+        ch |= 0x20;
+
+        if (ch >= 'a' && ch <= 'f') {
+            *dst++ = (u_char) ((decoded << 4) + ch - 'a' + 10);
+            continue;
+        }
+
+        return NGX_ERROR;
+    }
+
+    return NGX_OK;
+}
+
 
 void
 ngx_encode_base64(ngx_str_t *dst, ngx_str_t *src)

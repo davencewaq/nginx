@@ -273,6 +273,8 @@ syn keyword ngxDirective contained grpc_ssl_crl
 syn keyword ngxDirective contained grpc_ssl_name
 syn keyword ngxDirective contained grpc_ssl_password_file
 syn keyword ngxDirective contained grpc_ssl_protocols
+syn keyword ngxDirective contained ssl_psk_file
+syn keyword ngxDirective contained ssl_psk_identity_hint
 syn keyword ngxDirective contained grpc_ssl_server_name
 syn keyword ngxDirective contained grpc_ssl_session_reuse
 syn keyword ngxDirective contained grpc_ssl_trusted_certificate
